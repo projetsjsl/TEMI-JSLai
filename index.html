@@ -63,7 +63,16 @@
   <script type="module">
     import { afficherGraphiqueTEMI } from './graphique.js';
     import { afficherTableauTEMI } from './tableau.js';
+import { analyserTEMI } from './interpretation.js';
 
+window.lancerSimulation = () => {
+  const revenu = parseFloat(document.getElementById('revenu').value);
+  if (!isNaN(revenu) && revenu > 0) {
+    afficherGraphiqueTEMI(revenu);
+    afficherTableauTEMI(revenu);
+    simulerPlageCotisations(revenu).then(resultats => analyserTEMI(revenu, resultats));
+  }
+};
     window.lancerSimulation = () => {
       const revenu = parseFloat(document.getElementById('revenu').value);
       if (!isNaN(revenu) && revenu > 0) {
@@ -72,5 +81,7 @@
       }
     };
   </script>
+  <p id="zoneInterpretation" style="margin-top: 2rem; font-weight: bold;"></p>
+  
 </body>
 </html>
