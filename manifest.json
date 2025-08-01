@@ -1,11 +1,10 @@
-
 {
-  "name": "Simulateur REER-TEMI",
-  "short_name": "REER-TEMI",
-  "start_url": "index.html",
+  "name": "Simulateur TEMI Ultra+++",
+  "short_name": "TEMI",
+  "start_url": "./simulateur_temi_ultra_plus_plus.html",
   "display": "standalone",
-  "background_color": "#f5f8fa",
-  "theme_color": "#007bff",
+  "background_color": "#121212",
+  "theme_color": "#00eaff",
   "icons": [
     {
       "src": "icon-192x192.png",
