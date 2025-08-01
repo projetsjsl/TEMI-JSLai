@@ -9,6 +9,8 @@
   <script type="module" src="./graphique.js"></script>
   <script type="module" src="./tableau.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
   <link rel="manifest" href="manifest.json" />
 <script>
   if ('serviceWorker' in navigator) {
@@ -61,27 +63,42 @@
   <table id="tableauResultats"></table>
 
   <script type="module">
-    import { afficherGraphiqueTEMI } from './graphique.js';
-    import { afficherTableauTEMI } from './tableau.js';
-import { analyserTEMI } from './interpretation.js';
-
+  import { afficherGraphiqueTEMI } from './graphique.js';
+  import { afficherTableauTEMI } from './tableau.js';
+  import { analyserTEMI } from './interpretation.js';
+  import { calculerScoreFiscal } from './scoreFiscal.js';
+  import { simulerPlageCotisations } from './simulateur.js';
+import { genererInterpretation } from './interpretationFiscalite.js';
+import { trouverCotisationOptimale } from './cotisationOptimale.js';
+    import { initialiserSliderCotisation } from './cotisationSlider.js';
+import { exportPDF } from './exportPDF.js';
+    import { activerModeSimplifie } from './modeSimplifie.js';
+    
 window.lancerSimulation = () => {
   const revenu = parseFloat(document.getElementById('revenu').value);
   if (!isNaN(revenu) && revenu > 0) {
     afficherGraphiqueTEMI(revenu);
     afficherTableauTEMI(revenu);
-    simulerPlageCotisations(revenu).then(resultats => analyserTEMI(revenu, resultats));
+    simulerPlageCotisations(revenu).then(resultats => {
+      analyserTEMI(revenu, resultats);
+      calculerScoreFiscal(resultats);
+      trouverCotisationOptimale(resultats); // 👈 Ajoute ceci
+      initialiserSliderCotisation(); // nouveau module ici
+      genererInterpretation(resultats);
+      window.resultatsTemi = resultats;
+    });
   }
 };
-    window.lancerSimulation = () => {
-      const revenu = parseFloat(document.getElementById('revenu').value);
-      if (!isNaN(revenu) && revenu > 0) {
-        afficherGraphiqueTEMI(revenu);
-        afficherTableauTEMI(revenu);
-      }
-    };
+</script>
   </script>
   <p id="zoneInterpretation" style="margin-top: 2rem; font-weight: bold;"></p>
+  <div id="scoreFiscal" style="margin-top: 2rem;"></div>
+  <div id="cotisationSliderBloc" style="margin-top: 3rem;"></div>
+  <div id="cotisationOptimale" style="margin-top: 2rem;"></div>
+  <div id="interpretationFiscalite" style="margin-top: 3rem;"></div>
+  <button onclick="exportPDF(window.resultatsTemi)">📤 Télécharger le rapport PDF</button>
+  <button onclick="activerModeSimplifie()">🧼 Mode simplifié</button>
+  <div id="modeSimplifieTexte" style="margin-top: 2rem;"></div>
   
 </body>
 </html>
