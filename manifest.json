@@ -1,0 +1,1 @@
+{"name": "JSL_AI", "short_name": "JSL_AI", "start_url": ".", "display": "standalone", "background_color": "#ffffff", "description": "Assistant intelligent pour la planification financière intégrée.", "icons": [{"src": "icon.png", "sizes": "512x512", "type": "image/png"}], "theme_color": "#000000"}
