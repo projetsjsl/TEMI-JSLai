@@ -1,0 +1,7 @@
+[
+  { "plafond": 53359, "taux": 0.15 },
+  { "plafond": 106717, "taux": 0.205 },
+  { "plafond": 165430, "taux": 0.26 },
+  { "plafond": 235675, "taux": 0.29 },
+  { "plafond": 1000000, "taux": 0.33 }
+]
