@@ -66,6 +66,10 @@ async function tracerGraphique(conjoint, enfants, etat) {
   const ctx = document.getElementById("temi-chart").getContext("2d");
   if (window.temiChart) window.temiChart.destroy();
 
+  const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+  gradient.addColorStop(0, 'rgba(79,70,229,0.3)');
+  gradient.addColorStop(1, 'rgba(79,70,229,0.05)');
+
   window.temiChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -74,16 +78,31 @@ async function tracerGraphique(conjoint, enfants, etat) {
         label: 'TEMI (%)',
         data: data,
         fill: true,
+        backgroundColor: gradient,
         borderColor: '#4f46e5',
-        backgroundColor: 'rgba(79,70,229,0.1)',
-        tension: 0.4
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3
       }]
     },
     options: {
       responsive: true,
       scales: {
-        y: { beginAtZero: true, max: 80 },
-        x: { title: { display: true, text: "Revenu ($)" } }
+        y: {
+          title: { display: true, text: "TEMI (%)" },
+          beginAtZero: true,
+          suggestedMax: 70
+        },
+        x: {
+          title: { display: true, text: "Revenu ($)" }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y.toFixed(2)} %`
+          }
+        }
       }
     }
   });
