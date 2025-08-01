@@ -1,14 +1,25 @@
-const CACHE_NAME = 'temi-cache-v1';
-const urlsToCache = ['index.html', 'style.css', 'script.js', 'graph.js'];
 
-self.addEventListener('install', event => {
+const CACHE_NAME = "sacadosjsl-temi-cache-v1";
+const urlsToCache = [
+  "/",
+  "/index.html",
+  "/style.css",
+  "/script.js",
+  "/graph.js",
+  "/icon-192x192.png",
+  "/icon-512x512.png"
+];
+
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
+    caches.match(event.request)
+      .then(response => response || fetch(event.request))
   );
 });
