@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulateur REER-TEMI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #f5f5f5;
+      padding: 2rem;
+    }
+    input, button {
+      margin: 0.5rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      cursor: pointer;
+      background-color: #337ab7;
+      border: none;
+      color: white;
+      border-radius: 4px;
+    }
+    .section-avancee {
+      margin-top: 2rem;
+    }
+    .graph-container {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🔧 Simulateur REER-TEMI (tout-en-un)</h1>
+  </header>
+
+  <main>
+    <section>
+      <label for="revenu">Revenu :</label>
+      <input type="number" id="revenu" value="60000">
+      <label for="cotisation">Cotisation REER :</label>
+      <input type="number" id="cotisation" value="8000">
+      <button onclick="simulerTEMI()">Lancer la simulation</button>
+      <button onclick="activerModeSimplifie()">🧼 Mode simplifié</button>
+    </section>
+
+    <div id="resultatTemi" class="section-avancee"></div>
+    <div id="graphiqueTemi" class="section-avancee graph-container">
+      <canvas id="chartTemi"></canvas>
+    </div>
+    <div id="cotisationOptimale" class="section-avancee"></div>
+    <div id="interpretationFiscalite"></div>
+    <div id="lienSimulation"></div>
+    <div id="modeSimplifieTexte"></div>
+
+    <section style="margin-top: 1rem;">
+      <button onclick="exportPDF()">📤 Télécharger le rapport PDF</button>
+    </section>
+  </main>
+
+  <footer>
+    <p style="font-size: 0.8rem; color: #888;">Outil basé sur les courbes CQFF et le TEMI.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function simulerTEMI() {
+      const revenu = parseInt(document.getElementById('revenu').value);
+      const cotisation = parseInt(document.getElementById('cotisation').value);
+      const revenuNet = revenu - cotisation;
+
+      const temi = Math.max(0, 1 - (revenuNet / 90000));
+      const resultatDiv = document.getElementById('resultatTemi');
+      resultatDiv.innerHTML = "<h2>Résultat TEMI</h2><p>Score TEMI estimé : <strong>" + (temi * 100).toFixed(1) + "%</strong></p>";
+
+      afficherGraphiqueTEMI(revenu, cotisation, temi);
+      document.getElementById('interpretationFiscalite').innerHTML = "<p>Avec une cotisation de " + cotisation.toLocaleString() + "$, votre revenu imposable diminue à " + revenuNet.toLocaleString() + "$.</p>";
+    }
+
+    function afficherGraphiqueTEMI(revenu, cotisation, temi) {
+      const ctx = document.getElementById('chartTemi').getContext('2d');
+      if (window.temiChart) window.temiChart.destroy();
+
+      window.temiChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Revenu', 'Cotisation REER', 'Score TEMI'],
+          datasets: [{
+            label: 'Simulation',
+            data: [revenu, cotisation, (temi * 100)],
+            backgroundColor: ['#888', '#337ab7', '#28a745']
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function exportPDF() {
+      alert("Fonction d'export PDF à venir. Vous pouvez imprimer cette page en PDF.");
+    }
+
+    function activerModeSimplifie() {
+      document.body.classList.add('mode-simplifie');
+      const sections = document.querySelectorAll('.section-avancee, .admin-only, #graphiqueTemi');
+      sections.forEach(el => el.style.display = 'none');
+      document.getElementById('modeSimplifieTexte').innerHTML = `
+        <div style="background:#222;padding:1rem;border-radius:5px;">
+          <h2>Mode simplifié activé</h2>
+          <p>Revenez à la version complète en rechargeant la page.</p>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
