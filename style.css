@@ -1,0 +1,15 @@
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  padding: 2rem;
+  text-align: center;
+}
+canvas {
+  max-width: 700px;
+  margin: auto;
+}
