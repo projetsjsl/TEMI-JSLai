@@ -1,10 +1,10 @@
 
 {
-  "name": "Simulateur Cotisation REER",
-  "short_name": "REER",
+  "name": "Simulateur REER-TEMI",
+  "short_name": "REER-TEMI",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#121212",
+  "background_color": "#f5f8fa",
   "theme_color": "#007bff",
   "icons": [
     {

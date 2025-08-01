@@ -1,156 +1,70 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Cotisation REER – Analyse par paliers</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simulateur de cotisation REER - TEMI</title>
+  <script type="module" src="./simulateur.js"></script>
+  <script type="module" src="./graphique.js"></script>
+  <script type="module" src="./tableau.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: sans-serif; background-color: #121212; color: #fff; padding: 20px; }
-    .container { max-width: 1100px; margin: auto; }
-    input, select, button {
-      width: 100%; padding: 8px; margin: 10px 0; border-radius: 5px; border: none;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f8fa;
+      padding: 2rem;
     }
-    button { background-color: #007bff; color: white; cursor: pointer; }
-    canvas { background: #fff; border-radius: 8px; margin-top: 20px; }
-    .box { background-color: #222; padding: 20px; margin-top: 20px; border-radius: 8px; }
+    h1, h2 {
+      color: #333;
+    }
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+    canvas {
+      margin-top: 2rem;
+      max-width: 100%;
+    }
     table {
-      width: 100%; border-collapse: collapse; margin-top: 20px;
+      width: 100%;
+      margin-top: 2rem;
+      border-collapse: collapse;
+      background: #fff;
     }
     th, td {
-      padding: 8px; border: 1px solid #444; text-align: right;
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: center;
     }
-    th { background-color: #333; text-align: center; }
+    th {
+      background-color: #e6eef5;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Simulation REER – Tableau détaillé par cotisation</h1>
+  <h1>🎯 Simulateur d’impact des cotisations REER</h1>
+  <p>Entrez votre revenu pour analyser l'effet de vos cotisations REER sur votre TEMI et le gain fiscal net :</p>
+  <input type="number" id="revenu" placeholder="Revenu brut ($)" />
+  <button onclick="lancerSimulation()">Simuler</button>
 
-    <label>Revenu net de départ ($) :</label>
-    <input type="number" id="revenu" value="110000" min="0" max="300000"/>
+  <canvas id="graphiqueTEMI" height="120"></canvas>
 
-    <label>Âge :</label>
-    <input type="number" id="age" value="66" />
+  <h2>🧾 Résultats détaillés</h2>
+  <table id="tableauResultats"></table>
 
-    <label>Enfants à charge :</label>
-    <input type="number" id="enfants" value="0" />
+  <script type="module">
+    import { afficherGraphiqueTEMI } from './graphique.js';
+    import { afficherTableauTEMI } from './tableau.js';
 
-    <button onclick="simulerREER()">Lancer la simulation</button>
-    <canvas id="graphiqueREER" height="400"></canvas>
-
-    <div class="box" id="recommandation">
-      <h3>Recommandation stratégique</h3>
-      <p>En attente de simulation...</p>
-    </div>
-
-    <div class="box">
-      <h3>Détail par cotisation</h3>
-      <table id="detailTable">
-        <thead>
-          <tr>
-            <th>Cotisation</th>
-            <th>Impôt sauvé</th>
-            <th>Prestations gagnées</th>
-            <th>Gain net</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <script>
-    function palierQC(rev) {
-      if (rev <= 49275) return 0.15;
-      if (rev <= 98540) return 0.20;
-      if (rev <= 119910) return 0.24;
-      return 0.2575;
-    }
-    function palierFED(rev) {
-      if (rev <= 55965) return 0.15;
-      if (rev <= 111935) return 0.205;
-      if (rev <= 173205) return 0.26;
-      if (rev <= 246752) return 0.29;
-      return 0.33;
-    }
-    function prestations(rev, age, enfants) {
-      let psv = age >= 65 ? 8400 : 0;
-      let srg = age >= 65 && rev < 21000 ? 5000 - (rev - 5000) * 0.15 : 0;
-      let ace = enfants > 0 && rev < 100000 ? enfants * 6000 : 0;
-      let tps = rev < 50000 ? 300 : 0;
-      return Math.max(psv, 0) + Math.max(srg, 0) + Math.max(ace, 0) + tps;
-    }
-
-    function simulerREER() {
-      const rev = parseFloat(document.getElementById("revenu").value);
-      const age = parseInt(document.getElementById("age").value);
-      const enfants = parseInt(document.getElementById("enfants").value);
-
-      let labels = [], gainsNets = [];
-      let bestGain = -Infinity, bestMontant = 0;
-      let tableRows = "";
-
-      for (let cotisation = 0; cotisation <= 100000; cotisation += 1000) {
-        const revenuApres = Math.max(rev - cotisation, 0);
-        const impotsAvant = rev * (palierQC(rev) + palierFED(rev));
-        const impotsApres = revenuApres * (palierQC(revenuApres) + palierFED(revenuApres));
-        const prestationsAvant = prestations(rev, age, enfants);
-        const prestationsApres = prestations(revenuApres, age, enfants);
-
-        const gainImp = impotsAvant - impotsApres;
-        const gainPrest = prestationsApres - prestationsAvant;
-        const gain = gainImp + gainPrest;
-
-        if (gain > bestGain) {
-          bestGain = gain;
-          bestMontant = cotisation;
-        }
-
-        labels.push(cotisation);
-        gainsNets.push(gain.toFixed(2));
-        tableRows += `
-          <tr>
-            <td>${cotisation.toLocaleString()}</td>
-            <td>${gainImp.toFixed(2)}</td>
-            <td>${gainPrest.toFixed(2)}</td>
-            <td>${gain.toFixed(2)}</td>
-          </tr>`;
+    window.lancerSimulation = () => {
+      const revenu = parseFloat(document.getElementById('revenu').value);
+      if (!isNaN(revenu) && revenu > 0) {
+        afficherGraphiqueTEMI(revenu);
+        afficherTableauTEMI(revenu);
       }
-
-      document.querySelector("#detailTable tbody").innerHTML = tableRows;
-
-      const ctx = document.getElementById("graphiqueREER").getContext("2d");
-      if (window.reerChart) window.reerChart.destroy();
-      window.reerChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [{
-            label: "Gain fiscal net ($)",
-            data: gainsNets,
-            borderColor: "#007bff",
-            backgroundColor: "rgba(0, 123, 255, 0.2)",
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            x: { title: { display: true, text: "Cotisation REER ($)" } },
-            y: { title: { display: true, text: "Gain net ($)" } }
-          }
-        }
-      });
-
-      let message = `<strong>Montant optimal suggéré :</strong> ${bestMontant.toLocaleString()} $<br>`;
-      message += `<strong>Gain fiscal net estimé :</strong> ${bestGain.toFixed(2)} $<br><br>`;
-      message += bestGain < 2000 ? "🔴 Faible rendement fiscal." :
-                bestGain < 4000 ? "🟡 Rendement modéré, à optimiser." :
-                "🟢 Excellente efficacité fiscale.";
-
-      document.getElementById("recommandation").innerHTML = `<h3>Recommandation stratégique</h3><p>${message}</p>`;
-    }
+    };
   </script>
 </body>
 </html>
